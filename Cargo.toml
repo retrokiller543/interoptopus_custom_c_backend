@@ -1,0 +1,14 @@
+[package]
+name = "interoptopus_custom_c_backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cc = { version = "1.0.72", optional = true }
+heck = "0.5.0"
+interoptopus = { version = "0.14" }
+
+[dev-dependencies]
+interoptopus = { version = "0.14" }
+interoptopus_custom_c_backend ={ path = "." }
+interoptopus_reference_project = { path = "./reference_project" }

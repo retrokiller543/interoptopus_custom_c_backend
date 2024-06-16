@@ -1,0 +1,11 @@
+/target
+
+/tests/output_docs_inline/app.c
+/tests/output_docs_inline/my_header.h
+
+/tests/output_nodocs/app.c
+/tests/output_nodocs/my_header.h
+
+/tests/output_typedefs/app.c
+/tests/output_typedefs/my_header.h
+
