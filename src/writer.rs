@@ -61,13 +61,14 @@ pub trait CWriter {
         w.indent();
         indented!(w, r#"private:"#)?;
         w.indent();
-        indented!(w, r#"{}** _context;"#, self.converter().opaque_to_typename(class.the_type()))?;
+        indented!(w, r#"{}* _context;"#, self.converter().opaque_to_typename(class.the_type()))?;
         w.unindent();
         indented!(w, r#"public:"#)?;
         w.indent();
         w.newline()?;
     
         indented!(w, r#"{}() : _context(nullptr) {{}}"#, context_type_name)?;
+        indented!(w, r#"~{}() {{ Dispose(); }}"#, context_type_name)?;
         w.newline()?;
     
         for ctor in class.constructors() {
@@ -98,15 +99,15 @@ pub trait CWriter {
             w.newline()?;
         }
     
-        indented!(w, r#"{}** Context() const {{ return _context; }}"#, self.converter().opaque_to_typename(class.the_type()))?;
+        indented!(w, r#"{}* Context() const {{ return _context; }}"#, self.converter().opaque_to_typename(class.the_type()))?;
         w.unindent();
         indented!(w, r#"private:"#)?;
         w.indent();
-        indented!(w, r#"explicit {}({}** context) : _context(context) {{}}"#, context_type_name, self.converter().opaque_to_typename(class.the_type()))?;
+        indented!(w, r#"explicit {}({}* context) : _context(context) {{}}"#, context_type_name, self.converter().opaque_to_typename(class.the_type()))?;
         w.unindent();
         indented!(w, r#"public:"#)?;
         w.indent();
-        indented!(w, r#"static {} FromContext({}** context) {{ return {}(context); }}"#,  context_type_name, self.converter().opaque_to_typename(class.the_type()), context_type_name)?;
+        indented!(w, r#"static {} FromContext({}* context) {{ return {}(context); }}"#,  context_type_name, self.converter().opaque_to_typename(class.the_type()), context_type_name)?;
         w.unindent();
         w.unindent();
         indented!(w, r#"}};"#)?;
@@ -150,7 +151,7 @@ pub trait CWriter {
             format!(", {}", to_invoke.join(", "))
         };
     
-        let context = if write_context_by_ref { if is_ctor { "self->_context" } else { "_context"} } else { "*_context" };
+        let context = if write_context_by_ref { if is_ctor { "&self._context" } else { "&_context"} } else { "_context" };
         let arg_tokens = names.iter().zip(types.iter()).map(|(n, t)| format!("{} {}", t, n)).collect::<Vec<_>>();
         let fn_call = format!(r#"{}({}{})"#, method_to_invoke, context, extra_args);
     
@@ -164,7 +165,7 @@ pub trait CWriter {
         indented!(w, r#"{{"#)?;
     
         if is_ctor {
-            indented!(w, [_], r#"{}* self = new {}();"#, class.the_type().rust_name(), class.the_type().rust_name())?;
+            indented!(w, [_], r#"{} self;"#, class.the_type().rust_name())?;
         }
     
         match function.signature().rval() {
@@ -189,7 +190,7 @@ pub trait CWriter {
         }
     
         if is_ctor {
-            indented!(w, [_], r#"return *self;"#)?;
+            indented!(w, [_], r#"return self;"#)?;
         }
     
         indented!(w, r#"}}"#)?;
